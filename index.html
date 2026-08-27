@@ -768,12 +768,18 @@ function activateTab(tabId, updateHash = true){
     targetY = Math.max(targetY, anchorAfter);
   }
 
-  requestAnimationFrame(() => {
-    const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    window.scrollTo({ top: Math.min(targetY, maxY), behavior: 'auto' });
-  });
-
+  // Cuộn NGAY (đồng bộ). Việc gọi getTabBarAnchorY()/ensureStickyRoom() ở trên đã
+  // buộc trình duyệt reflow, nên scrollHeight bên dưới là chính xác cho panel MỚI.
+  // (Trước đây cuộn trong requestAnimationFrame -> scrollHeight đôi khi còn là của
+  //  tab cũ -> tab mới bị kẹt ở vị trí của tab trước đó.)
   currentActiveTab = tabId;
+  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  window.scrollTo({ top: Math.min(targetY, maxY), behavior: 'auto' });
+  // Lặp lại 1 lần ở frame kế để chống trường hợp ảnh/nội dung động làm đổi chiều cao.
+  requestAnimationFrame(() => {
+    const maxY2 = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo({ top: Math.min(targetY, maxY2), behavior: 'auto' });
+  });
 
   // Cuộn thanh menu ngang để nút tab đang chọn về giữa nhất có thể.
   centerActiveTab(tabId);
