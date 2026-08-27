@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⎡ Endless LIBRAry ⎦ — October Project for Thỏ (Da LAB)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0718;
+    --purple-deep:#1c0f3d;
+    --purple-mid:#341a63;
+    --purple-soft:#4a2589;
+    --violet-glow:#8a5cf6;
+    --gold:#d8b877;
+    --gold-bright:#f3e2ab;
+    --paper:#ece5f6;
+    --paper-dim:#c9bce3;
+    --parchment:#efe6d2;
+    --parchment-ink:#4a3a22;
+    --line:rgba(216,184,119,0.28);
+    --card-bg:rgba(255,255,255,0.045);
+    --card-border:rgba(216,184,119,0.22);
+    --serif:'Cormorant Garamond', serif;
+    --sans:'Be Vietnam Pro', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--sans);
+    overflow-x:hidden;
+    position:relative;
+    min-height:100vh;
+  }
+  .site-logo{
+    position:fixed;z-index:40;
+    top:max(4px,env(safe-area-inset-top));
+    left:max(10px,env(safe-area-inset-left));
+    width:50px;pointer-events:none;isolation:isolate;
+    transition:opacity .22s ease;
+  }
+  .site-logo::before{
+    content:"";position:absolute;z-index:-1;inset:13%;border-radius:50%;
+    background:rgba(186,123,255,.32);filter:blur(15px);
+    animation:logoAura 3.8s ease-in-out infinite;
+  }
+  .site-logo img{
+    display:block;width:100%;height:auto;
+    filter:drop-shadow(0 0 5px rgba(255,255,255,.45)) drop-shadow(0 0 12px rgba(161,83,255,.52));
+  }
+  @keyframes logoAura{
+    0%,100%{opacity:.42;transform:scale(.9);}
+    50%{opacity:.85;transform:scale(1.16);}
+  }
+  body.logo-docked .site-logo{opacity:0;}
+
+  /* ===== NÚT NHẠC NỀN ===== */
+  #ytMusicHost{position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;top:-9999px;}
+  .music-toggle{
+    position:fixed;z-index:41;
+    bottom:max(16px,env(safe-area-inset-bottom));
+    right:max(16px,env(safe-area-inset-right));
+    width:44px;height:44px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(24,14,46,.66);border:1px solid var(--card-border);
+    color:var(--gold-bright);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 4px 16px rgba(0,0,0,.3);transition:transform .2s ease,border-color .2s ease,background .2s ease;
+  }
+  .music-toggle:hover{transform:scale(1.06);border-color:var(--gold);}
+  .music-toggle svg{width:20px;height:20px;}
+  /* Trạng thái đang phát: hiện thanh equalizer, ẩn icon nốt nhạc */
+  .music-eq{display:none;gap:2px;align-items:flex-end;height:16px;}
+  .music-eq i{width:3px;background:var(--gold-bright);border-radius:2px;animation:eqBar .9s ease-in-out infinite;}
+  .music-eq i:nth-child(1){height:6px;animation-delay:0s;}
+  .music-eq i:nth-child(2){height:14px;animation-delay:.15s;}
+  .music-eq i:nth-child(3){height:9px;animation-delay:.3s;}
+  @keyframes eqBar{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+  body.music-playing .music-toggle .music-icon{display:none;}
+  body.music-playing .music-toggle .music-eq{display:flex;}
+  /* Gợi ý nhẹ khi nhạc chưa phát được (bị chặn autoplay) */
+  .music-toggle.needs-tap{animation:musicPulse 1.8s ease-in-out infinite;}
+  @keyframes musicPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.3);}50%{box-shadow:0 0 0 6px rgba(216,184,119,.18),0 4px 16px rgba(0,0,0,.3);}}
+  .scene-bg{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      linear-gradient(180deg,rgba(8,4,22,.36) 0%,rgba(10,5,27,.58) 42%,rgba(8,4,20,.9) 100%),
+      radial-gradient(ellipse 68% 48% at 50% 25%,rgba(92,45,180,.05),rgba(6,3,18,.56) 76%),
+      url('background.webp') center top/cover no-repeat;
+  }
+  .scene-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(8,4,22,.48),transparent 24%,transparent 76%,rgba(8,4,22,.48));
+  }
+  .visual-atmosphere{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .fairy-dust,.flying-paper{position:absolute;user-select:none;will-change:transform;}
+  .fairy-dust{width:clamp(260px,38vw,580px);opacity:.24;filter:blur(.25px) saturate(1.15);mix-blend-mode:screen;}
+  .dust-left{left:-14%;top:-7%;transform:rotate(-10deg);animation:dustDriftLeft 13s ease-in-out infinite;}
+  .dust-right{right:-15%;bottom:-10%;transform:rotate(164deg);animation:dustDriftRight 15s ease-in-out infinite;}
+  .flying-paper{width:clamp(105px,15vw,205px);opacity:.3;filter:blur(.45px) drop-shadow(0 18px 28px rgba(0,0,0,.5));}
+  .paper-one{left:-2.5%;top:19%;animation:paperFloatOne 10s ease-in-out infinite;}
+  .paper-two{right:-2%;top:43%;animation:paperFloatTwo 12s ease-in-out infinite;}
+  .paper-three{left:5%;bottom:5%;width:clamp(90px,13vw,170px);animation:paperFloatThree 11s ease-in-out infinite;}
+  @keyframes dustDriftLeft{0%,100%{transform:translate3d(0,0,0) rotate(-10deg);}50%{transform:translate3d(22px,16px,0) rotate(-5deg);}}
+  @keyframes dustDriftRight{0%,100%{transform:translate3d(0,0,0) rotate(164deg);}50%{transform:translate3d(-20px,-18px,0) rotate(158deg);}}
+  @keyframes paperFloatOne{0%,100%{transform:translate3d(0,0,0) rotate(-9deg);}50%{transform:translate3d(18px,-20px,0) rotate(-3deg);}}
+  @keyframes paperFloatTwo{0%,100%{transform:translate3d(0,0,0) rotate(8deg);}50%{transform:translate3d(-17px,22px,0) rotate(2deg);}}
+  @keyframes paperFloatThree{0%,100%{transform:translate3d(0,0,0) rotate(-5deg);}50%{transform:translate3d(20px,-15px,0) rotate(3deg);}}
+  @media (max-width:680px){
+    .site-logo{
+      top:max(3px,env(safe-area-inset-top));
+      left:max(7px,env(safe-area-inset-left));width:40px;
+    }
+    .scene-bg,.visual-atmosphere,.sparkle-field{
+      inset:auto;top:0;left:0;width:100vw;height:100vh;height:100lvh;
+      transform:translate3d(0,0,0);backface-visibility:hidden;
+      contain:paint;
+    }
+    .scene-bg{
+      background-position:center,center,46% top;
+      background-size:100% 100%,100% 100%,auto 100vh;
+      background-size:100% 100%,100% 100%,auto 100lvh;
+      background-repeat:no-repeat;
+    }
+    .fairy-dust{opacity:.16;}
+    .flying-paper{opacity:.2;}
+    .paper-one{left:-12%;top:22%;}.paper-two{right:-12%;top:52%;}.paper-three{left:-9%;bottom:3%;}
+  }
+  @media (prefers-reduced-motion:reduce){.fairy-dust,.flying-paper{animation:none!important;}}
+  /* ambient sparkle field */
+  .sparkle-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+  .spark{position:absolute;border-radius:50%;background:radial-gradient(circle, var(--gold-bright) 0%, rgba(243,226,171,0) 70%);opacity:0;animation:twinkle 6s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:0;transform:scale(0.6);}50%{opacity:0.85;transform:scale(1);}}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+
+  section{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:90px 24px;}
+  .container-wide{max-width:1080px;}
+
+  /* dividers */
+  .divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 28px;width:fit-content;}
+  .divider .rule{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .divider .glyph{color:var(--gold);font-size:14px;opacity:0.9;}
+
+  h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 42px;}
+  .hero-book{width:150px;margin-bottom:10px;animation:floaty 5s ease-in-out infinite;filter:drop-shadow(0 0 17px rgba(214,64,255,.42));}
+  .hero-book img{display:block;width:100%;height:auto;}
+  .hero .kicker{font-family:var(--sans);text-transform:uppercase;letter-spacing:0.3em;font-size:12px;color:var(--paper-dim);margin-bottom:14px;}
+  .hero-logo{width:min(900px,96vw);aspect-ratio:1062/375;overflow:hidden;margin:-2px auto 2px;filter:drop-shadow(0 6px 22px rgba(76,132,255,.22));}
+  .hero-logo img{display:block;width:180.8%;max-width:none;height:auto;transform:translate(-22.45%,-6.2%);}
+  .hero .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(16px,2.2vw,20px);color:var(--paper-dim);margin-top:16px;max-width:560px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:15px 30px;border-radius:999px;
+    font-family:var(--sans);font-weight:600;font-size:14.5px;letter-spacing:0.02em;
+    text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:#241407;box-shadow:0 8px 30px rgba(216,184,119,0.25);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(216,184,119,0.4);}
+  main,footer{position:relative;z-index:2;}
+
+  /* ===== TAB BAR ===== */
+  .tab-bar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;overflow:hidden;
+    padding-top:env(safe-area-inset-top);
+    background:rgba(11,7,24,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--card-border);
+    box-shadow:0 4px 24px rgba(0,0,0,0.25);
+  }
+  .tab-logo-slot{
+    position:relative;flex:0 0 70px;align-self:stretch;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .22s ease;isolation:isolate;
+  }
+  .tab-logo-slot::before{
+    content:"";position:absolute;z-index:-1;width:40px;height:40px;border-radius:50%;
+    background:rgba(186,123,255,.3);filter:blur(13px);animation:logoAura 3.8s ease-in-out infinite;
+  }
+  .tab-logo-slot img{display:block;width:50px;height:54px;object-fit:contain;filter:drop-shadow(0 0 5px rgba(255,255,255,.42)) drop-shadow(0 0 10px rgba(161,83,255,.46));}
+  body.logo-docked .tab-logo-slot{opacity:1;}
+  .tab-scroll{
+    min-width:0;flex:1;display:flex;flex-wrap:nowrap;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding:12px 0;
+  }
+  .tab-scroll::-webkit-scrollbar{display:none;}
+  /* Các nút gói trong 1 hàng có margin:auto -> tự căn giữa khi vừa chỗ, nhưng khi
+     tràn thì scrollLeft=0 vẫn là đầu thật, giúp việc cuộn-căn-giữa chính xác. */
+  .tab-row{display:flex;gap:6px;flex-wrap:nowrap;margin:0 auto;padding:0 70px 0 0;}
+  .tab-btn{
+    flex:0 0 auto;
+    background:transparent;border:1px solid transparent;border-radius:999px;
+    padding:9px 18px;font-family:var(--sans);font-size:13.5px;font-weight:500;
+    color:var(--paper-dim);cursor:pointer;white-space:nowrap;
+    transition:color .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .tab-btn:hover{color:var(--paper);}
+  .tab-btn.active{
+    background:linear-gradient(135deg,var(--gold-bright),var(--gold));
+    color:#241407;font-weight:700;border-color:transparent;
+  }
+  @media (max-width:640px){
+    .tab-logo-slot{flex-basis:58px;}
+    .tab-logo-slot img{width:40px;height:43px;}
+    .tab-logo-slot::before{width:32px;height:32px;}
+    .tab-scroll{padding:10px 0;}
+    .tab-row{gap:4px;padding:0 12px 0 0;}
+    .tab-btn{padding:8px 13px;font-size:12.5px;}
+  }
+  @media (max-width:400px){
+    .tab-btn{padding:7px 10px;font-size:11.5px;}
+  }
+
+  /* ===== TAB PANELS ===== */
+  .tab-panel{display:none;animation:fadeInPanel .35s ease;}
+  .tab-panel.active{display:block;}
+  @keyframes fadeInPanel{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== ABOUT ===== */
+  .about-card{
+    background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;
+    padding:48px clamp(24px,5vw,64px);backdrop-filter:blur(6px);
+  }
+  .about-card p{font-size:16.5px;line-height:1.9;color:var(--paper-dim);margin:0 0 18px;}
+  .about-card p:last-child{margin-bottom:0;}
+  .about-card .lead{font-family:var(--serif);font-style:italic;font-size:21px;color:var(--paper);line-height:1.6;}
+
+  h2.section-title{
+    text-align:center;font-size:clamp(30px,5vw,42px);color:var(--gold-bright);
+    font-style:italic;margin-bottom:14px;
+  }
+  .section-sub{text-align:center;color:var(--paper-dim);font-size:15px;max-width:520px;margin:0 auto 48px;line-height:1.7;}
+
+  /* ===== PROGRESS (signature element) ===== */
+  .progress-wrap{background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;padding:clamp(28px,5vw,56px);position:relative;overflow:hidden;}
+  .progress-numbers{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:10px;text-align:center;margin-bottom:8px;}
+  .progress-numbers .raised{font-family:var(--serif);font-size:clamp(38px,7vw,58px);font-weight:600;color:var(--gold-bright);font-style:italic;}
+  .progress-numbers .of{color:var(--paper-dim);font-size:16px;}
+  .progress-numbers .target{font-family:var(--serif);font-size:22px;color:var(--paper);}
+  .progress-pct{text-align:center;color:var(--gold);font-size:13px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:44px;}
+
+  /* --pos is a 0-100 number set inline; each element decides whether it maps to left% (horizontal) or top% (vertical) */
+  .track-outer{position:relative;padding:0 8px;}
+
+  .book-track{position:relative;height:6px;border-radius:6px;background:rgba(255,255,255,0.08);margin:0 10px;}
+  .book-track-buffer{position:absolute;top:0;left:92.3%;right:0;height:100%;border-radius:0 6px 6px 0;background:repeating-linear-gradient(115deg, rgba(216,184,119,0.35) 0 6px, transparent 6px 12px);}
+  .book-track-fill{position:absolute;top:0;left:0;height:100%;border-radius:6px;background:linear-gradient(90deg, var(--violet-glow), var(--gold));box-shadow:0 0 18px rgba(216,184,119,0.55);transition:width 1.4s cubic-bezier(.2,.8,.2,1);width:calc(var(--pos,0) * 1%);}
+  .book-marker{
+    position:absolute;top:50%;left:calc(var(--pos,0) * 1%);width:34px;height:34px;border-radius:50%;transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(216,184,119,0.18), transparent 70%);
+    border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;
+  }
+  .book-marker.reached{border-color:var(--gold);box-shadow:0 0 16px rgba(216,184,119,0.6);}
+  .book-marker svg{width:16px;height:16px;}
+
+  /* track-side-a sits ABOVE the bar, track-side-b BELOW — milestones alternate sides so
+     nearby points (like 84.6% / 92.3%) never share the same row and can't overlap. */
+  .track-side{position:relative;height:104px;margin:0 10px;}
+  .track-side-a{margin-bottom:10px;}
+  .track-side-b{margin-top:18px;}
+  .track-label{position:absolute;left:calc(var(--pos,0) * 1%);transform:translateX(-50%);text-align:center;width:140px;}
+  .track-side-a .track-label{bottom:0;display:flex;flex-direction:column-reverse;align-items:center;}
+  .track-side-b .track-label{top:0;}
+  .track-label .tag{
+    display:inline-block;font-family:var(--sans);font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--parchment-ink);background:var(--parchment);padding:5px 12px;border-radius:3px;
+    transform:rotate(-1.2deg);box-shadow:0 4px 10px rgba(0,0,0,0.25);
+  }
+  .track-label .amt{display:block;margin-top:8px;font-family:var(--serif);font-size:17px;color:var(--gold-bright);}
+  .track-label .desc{display:block;margin-top:4px;font-size:11.5px;color:var(--paper-dim);line-height:1.5;}
+
+  .current-pos{position:absolute;z-index:2;top:-38px;left:calc(var(--pos,0) * 1%);transform:translateX(-50%);transition:left 1.4s cubic-bezier(.2,.8,.2,1);}
+  .current-pos svg{width:26px;height:26px;filter:drop-shadow(0 0 8px rgba(216,184,119,0.8));animation:floaty 3s ease-in-out infinite;}
+
+  /* ---- landscape/tablet mobile: same horizontal layout, just tighter ---- */
+  @media (max-width:640px) and (min-aspect-ratio:1/1){
+    .track-label{width:104px;}
+    .track-label .desc{font-size:10.5px;}
+  }
+
+  /* ---- narrow portrait screens: switch the whole track to a VERTICAL bar ---- */
+  @media (max-width:520px) and (orientation:portrait){
+    .track-outer{
+      display:flex;align-items:stretch;justify-content:center;gap:14px;
+      padding:6px 0;height:340px;
+    }
+    .book-track{
+      order:2;width:6px;height:340px;margin:0;flex:0 0 auto;
+    }
+    .book-track-fill{width:100%;height:calc(var(--pos,0) * 1%);}
+    .book-track-buffer{left:0;right:auto;top:92.3%;bottom:0;width:100%;height:auto;border-radius:0 0 6px 6px;background:repeating-linear-gradient(205deg, rgba(216,184,119,0.35) 0 6px, transparent 6px 12px);}
+    .book-marker{top:calc(var(--pos,0) * 1%);left:50%;}
+
+    .track-side{order:1;height:340px;width:126px;margin:0;flex:0 0 auto;}
+    .track-side-a{margin-bottom:0;}
+    .track-side-b{order:3;margin-top:0;}
+    .track-label{left:auto;top:calc(var(--pos,0) * 1%);transform:translateY(-50%);width:126px;}
+    .track-side-a .track-label{bottom:auto;right:0;display:block;text-align:right;}
+    .track-side-b .track-label{top:calc(var(--pos,0) * 1%);left:0;text-align:left;}
+    .track-label .desc{font-size:10px;}
+
+    .current-pos{left:50%;top:calc(var(--pos,0) * 1%);transform:translate(-50%,-50%);}
+  }
+
+  .progress-loading{text-align:center;color:var(--paper-dim);font-size:14px;padding:30px 0;}
+  .retry-btn{display:inline-block;margin-top:10px;background:none;border:1px solid var(--gold);color:var(--gold-bright);border-radius:999px;padding:7px 20px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:background .2s ease;}
+  .retry-btn:hover{background:rgba(216,184,119,0.12);}
+
+  /* ===== FUND CARDS ===== */
+  .fund-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media (max-width:820px){.fund-grid{grid-template-columns:1fr;}}
+  .fund-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:18px;padding:32px 26px;text-align:center;transition:transform .3s ease, border-color .3s ease;}
+  .fund-card:hover{transform:translateY(-6px);border-color:var(--gold);}
+  .fund-card .num{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:34px;letter-spacing:0.06em;margin-bottom:10px;display:block;line-height:1;}
+  .fund-card h3{color:var(--gold-bright);font-size:21px;font-style:italic;margin-bottom:4px;}
+  .fund-card .date{font-size:11.5px;color:var(--paper-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;display:block;}
+  .fund-card .amt{font-family:var(--serif);font-size:28px;color:var(--paper);margin-bottom:16px;}
+  .fund-card ul{list-style:none;padding:0;margin:0;text-align:left;}
+  .fund-card li{font-size:14px;color:var(--paper-dim);padding:6px 0 6px 22px;position:relative;line-height:1.5;}
+  .fund-card li::before{content:'✦';position:absolute;left:0;color:var(--gold);font-size:11px;top:8px;}
+  .fund-note{text-align:center;color:var(--paper-dim);font-size:13.5px;margin-top:28px;line-height:1.8;}
+
+  /* ===== DONATE ===== */
+  .donate-simple{max-width:600px;margin:0 auto;}
+  .donate-form-link{display:block;text-align:center;max-width:320px;margin:36px auto 0;}
+  .donate-steps-short{list-style:none;padding:0;margin:0;max-width:600px;margin-left:auto;margin-right:auto;}
+  .donate-steps-short li{margin-bottom:16px;padding-left:38px;position:relative;color:var(--paper-dim);font-size:14.5px;line-height:1.7;}
+  .donate-steps-short li b{color:var(--paper);}
+  .donate-steps-short .step-num{position:absolute;left:0;top:-2px;width:26px;height:26px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-size:14px;}
+  .donate-warn{margin-top:8px;background:rgba(216,184,119,0.08);border:1px solid var(--card-border);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--gold-bright);}
+  .amount-feedback{font-weight:600;min-height:1.4em;display:block;}
+  .amount-feedback.valid{color:#a8e0b8 !important;}
+  .amount-feedback.invalid{color:#e69a9a !important;}
+
+  .donation-form{
+    max-width:600px;margin:0 auto;background:var(--card-bg);border:1px solid var(--card-border);
+    border-radius:20px;padding:clamp(24px,5vw,44px);
+  }
+  .form-row{margin-bottom:22px;display:flex;flex-direction:column;}
+  .form-row label{font-size:14px;color:var(--paper);margin-bottom:8px;font-weight:500;}
+  .form-row .req{color:var(--gold);}
+  .form-row input[type="text"],
+  .form-row input[type="email"],
+  .form-row input[type="tel"],
+  .form-row input[type="number"],
+  .form-row textarea{
+    padding:13px 16px;border-radius:12px;border:1px solid var(--card-border);
+    background:rgba(255,255,255,0.04);color:var(--paper);font-family:var(--sans);font-size:14.5px;outline:none;
+    resize:vertical;
+  }
+  .form-row input:focus, .form-row textarea:focus{border-color:var(--gold);}
+  .form-row input::placeholder, .form-row textarea::placeholder{color:var(--paper-dim);}
+  .form-row input[type="file"]{
+    padding:12px;border-radius:12px;border:1px dashed var(--card-border);
+    background:rgba(255,255,255,0.03);color:var(--paper-dim);font-size:13px;
+  }
+  .form-row .hint{font-size:12px;color:var(--paper-dim);margin-top:6px;line-height:1.5;}
+  .remaining-hint{color:var(--gold-bright) !important;font-weight:500;min-height:1.5em;display:block;}
+  .saved-donor-banner{
+    background:rgba(216,184,119,0.1);border:1px solid var(--card-border);border-radius:12px;
+    padding:12px 16px;margin-bottom:22px;font-size:13px;color:var(--gold-bright);
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .saved-donor-banner button{
+    background:none;border:1px solid var(--card-border);color:var(--paper-dim);border-radius:999px;
+    padding:6px 14px;font-size:12px;cursor:pointer;font-family:var(--sans);white-space:nowrap;
+  }
+  .saved-donor-banner button:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .image-preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .image-preview .thumb{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--card-border);}
+  .image-preview .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .image-preview .thumb .remove{
+    position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;
+    width:18px;height:18px;border-radius:50%;font-size:11px;line-height:1;cursor:pointer;
+  }
+  .consent-pills{display:flex;gap:10px;flex-wrap:wrap;}
+  .consent-pill{
+    padding:11px 18px;border-radius:999px;border:1px solid var(--card-border);background:transparent;
+    color:var(--paper-dim);font-family:var(--sans);font-size:13.5px;cursor:pointer;transition:all .2s ease;
+  }
+  .consent-pill.active{background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:#241407;border-color:transparent;font-weight:600;}
+  .submit-btn{width:100%;justify-content:center;margin-top:8px;}
+  .submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .form-status{text-align:center;margin-top:14px;font-size:13.5px;min-height:20px;}
+  .form-status.error{color:#e69a9a;}
+  .form-status.success{color:var(--gold-bright);}
+  .field-error{border-color:#e69a9a !important;}
+
+  /* ===== THANK YOU WALL ===== */
+  .wall-stats{display:flex;justify-content:center;gap:48px;margin-bottom:40px;flex-wrap:wrap;text-align:center;}
+  .wall-stats div span{display:block;font-family:var(--serif);font-size:34px;color:var(--gold-bright);font-style:italic;}
+  .wall-stats div small{font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper-dim);}
+  .wall-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .thank-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;}
+  .thank-card .row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;}
+  .thank-card .name{font-family:var(--serif);font-style:italic;color:var(--gold-bright);font-size:17px;}
+  .thank-card .amount{font-size:13px;color:var(--gold);white-space:nowrap;font-weight:600;}
+  .thank-card .msg{font-size:13.5px;color:var(--paper-dim);line-height:1.6;max-height:4.8em;overflow:hidden;position:relative;}
+  .thank-card .msg.expanded{max-height:none;}
+  .thank-card .more-toggle{background:none;border:none;color:var(--gold);font-size:12px;cursor:pointer;padding:6px 0 0;font-family:var(--sans);}
+  .thank-card .row-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--card-border);}
+  .thank-card .time{font-size:10.5px;color:var(--paper-dim);opacity:0.75;white-space:nowrap;}
+  .thank-card .fund-remaining{font-size:10.5px;color:var(--paper-dim);opacity:0.85;text-align:right;white-space:nowrap;}
+  .wall-loading, .wall-empty{text-align:center;color:var(--paper-dim);padding:40px 0;font-size:14px;grid-column:1/-1;}
+
+  /* ===== LOOKUP ===== */
+  .lookup-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:clamp(28px,5vw,48px);}
+  .lookup-form{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;}
+  .lookup-form input{
+    flex:1;min-width:220px;max-width:340px;padding:14px 18px;border-radius:999px;
+    border:1px solid var(--card-border);background:rgba(255,255,255,0.04);color:var(--paper);
+    font-family:var(--sans);font-size:14.5px;outline:none;
+  }
+  .lookup-form input:focus{border-color:var(--gold);}
+  .lookup-form input::placeholder{color:var(--paper-dim);}
+  .lookup-note{text-align:center;color:var(--paper-dim);font-size:12.5px;margin-top:10px;line-height:1.7;}
+  .lookup-results{margin-top:30px;display:flex;flex-direction:column;gap:16px;}
+  .lookup-result-card{background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:14px;padding:22px 24px;}
+  .lookup-result-card .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin:14px 0;}
+  @media (max-width:520px){.lookup-result-card .grid{grid-template-columns:1fr;}}
+  .lookup-result-card .field small{display:block;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:3px;}
+  .lookup-result-card .field span{font-size:14px;color:var(--paper);word-break:break-word;}
+  .lookup-result-card .msg-box{margin-top:14px;background:rgba(0,0,0,0.15);border-radius:10px;padding:14px 16px;font-size:13.5px;color:var(--paper-dim);line-height:1.6;}
+  .lookup-result-card .imgs{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .lookup-result-card .imgs a{display:block;width:84px;height:84px;border-radius:8px;overflow:hidden;border:1px solid var(--card-border);position:relative;}
+  .lookup-result-card .imgs img{width:100%;height:100%;object-fit:cover;display:block;}
+  .lookup-result-card .imgs a.fallback{display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--gold);text-align:center;padding:6px;text-decoration:none;}
+  .lookup-status{text-align:center;font-size:13.5px;color:var(--paper-dim);margin-top:20px;min-height:20px;}
+  .lookup-status.not-found{color:#e69a9a;}
+  .lookup-status.found{color:var(--gold-bright);}
+
+  /* ===== FOOTER ===== */
+  footer{text-align:center;padding:80px 24px 60px;position:relative;z-index:1;}
+  footer .quote{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(15px, calc(4vw - 1px), 26px);
+    color:var(--gold-bright);max-width:640px;margin:0 auto 20px;line-height:1.6;
+    white-space:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding-bottom:2px;
+  }
+  footer .quote::-webkit-scrollbar{display:none;}
+  footer .credit{color:var(--paper-dim);letter-spacing:0.05em;}
+  footer .credit b{color:var(--paper);}
+  footer .credit-line{
+    font-size:clamp(9px, calc(2.9vw - 0.5px), 13px);
+    white-space:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    max-width:100%;margin:0 auto;padding:2px 0;
+  }
+  footer .credit-line::-webkit-scrollbar{display:none;}
+
+  ::selection{background:rgba(216,184,119,0.35);}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Trình phát nhạc nền (YouTube ẩn) + nút bật/tắt nổi -->
+<div id="ytMusicHost" aria-hidden="true"></div>
+<button id="musicToggle" class="music-toggle" type="button" aria-label="Bật/tắt nhạc nền" title="Nhạc nền">
+  <span class="music-icon" id="musicIcon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>
+    </svg>
+  </span>
+  <span class="music-eq" id="musicEq" aria-hidden="true"><i></i><i></i><i></i></span>
+</button>
+
+<div class="site-logo" aria-label="Vòng Tròn Nhỏ — Chú Thỏ Cao Cấp">
+  <img src="logo-vtn.png" alt="Vòng Tròn Nhỏ — Chú Thỏ Cao Cấp">
+</div>
+<div class="scene-bg" aria-hidden="true"></div>
+<div class="visual-atmosphere" aria-hidden="true">
+  <img class="fairy-dust dust-left" src="fairy-dust.webp" alt="">
+  <img class="fairy-dust dust-right" src="fairy-dust.webp" alt="">
+  <img class="flying-paper paper-one" src="paper-1.webp" alt="">
+  <img class="flying-paper paper-two" src="paper-2.webp" alt="">
+  <img class="flying-paper paper-three" src="paper-3.webp" alt="">
+</div>
+<div class="sparkle-field" id="sparkleField"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-book" aria-hidden="true">
+    <img src="book.webp" alt="">
+  </div>
+  <div class="kicker">Vòng Tròn Nhỏ · Fantom presents</div>
+  <div class="hero-logo">
+    <img src="TYPO.png" alt="Endless Library">
+  </div>
+  <p class="tagline">A library of endless possibilities, stories and little worlds.</p>
+  <p class="section-sub" style="margin-top:10px;">October Project for Thỏ (Da LAB).</p>
+</header>
+
+<nav class="tab-bar" id="tabBar">
+  <div class="tab-logo-slot" aria-hidden="true">
+    <img src="logo-vtn.png" alt="">
+  </div>
+  <div class="tab-scroll">
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="story">Giới thiệu</button>
+      <button class="tab-btn" data-tab="progress">Tiến trình</button>
+      <button class="tab-btn" data-tab="allocation">Phân bổ quỹ</button>
+      <button class="tab-btn" data-tab="donate">Donate</button>
+      <button class="tab-btn" data-tab="thankyou">Danh sách Donors</button>
+      <button class="tab-btn" data-tab="lookup">Tra cứu</button>
+    </div>
+  </div>
+</nav>
+
+<main class="tab-content">
+
+<!-- ============ STORY ============ -->
+<section id="story" class="tab-panel active">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title">Cánh cửa của Endless LIBRAry</h2>
+  <div class="about-card">
+    <p class="lead">Lấy cảm hứng từ "lore" của chú Thỏ và cung Thiên Bình (Libra), Tròn đã liên tưởng và phát triển thành một LIBRAry — một thư viện.</p>
+    <p>⎡ Endless LIBRAry ⎦ là một không gian lưu giữ những thế giới mà chú Thỏ Da LAB đã đi qua, từ âm nhạc, sân khấu đến những phiên bản khác nhau để trở thành một smALL-ROUNDER.</p>
+    <p>"Endless" dành cho khả năng không có giới hạn, những câu chuyện chưa có hồi kết, hay một Vòng Tròn có thể bắt đầu ở một điểm bất kỳ nhưng không có điểm cuối. Và ⎡ Endless LIBRAry ⎦ cũng như một vòng tròn có thể được vẽ trong một không gian hữu hạn — chúng mình tin rằng một không gian nhỏ vẫn có thể chứa đựng vô vàn câu chuyện với thế giới thật rộng lớn không có giới hạn.</p>
+    <p>Lần này, chúng mình mong muốn cùng mọi người mở cánh cửa của ⎡ Endless LIBRAry ⎦, nơi những câu chuyện cũ được lưu giữ, những câu chuyện mới được viết tiếp, và những điều chưa từng xảy ra vẫn có chỗ để bắt đầu.</p>
+  </div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section id="progress" class="tab-panel container-wide">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title">Tiến trình gây quỹ</h2>
+  <p class="section-sub">Mỗi đóng góp, dù lớn hay nhỏ, đều là một trang trong thư viện mà tất cả chúng ta đang cùng nhau xây nên.</p>
+
+  <div class="progress-wrap">
+    <div id="progressLoading" class="progress-loading">Đang mở trang sách gây quỹ…</div>
+    <div id="progressContent" style="display:none;">
+      <div class="progress-numbers">
+        <span class="raised" id="raisedAmount">0</span>
+        <span class="of">/</span>
+        <span class="target">130.000.000 VNĐ</span>
+      </div>
+      <div class="progress-pct" id="progressPct">0% mục tiêu</div>
+
+      <div class="track-outer">
+        <div class="track-side track-side-a">
+          <div class="track-label" style="--pos:23.08;">
+            <span class="tag">Vol. ∞</span>
+            <span class="amt">30.000.000₫</span>
+            <span class="desc">Birthday LED &amp; quà sinh nhật</span>
+          </div>
+          <div class="track-label" style="--pos:92.3;">
+            <span class="tag">Beyond</span>
+            <span class="amt">120.000.000₫</span>
+            <span class="desc">Fan cafe &amp; decoration</span>
+          </div>
+        </div>
+
+        <div class="book-track">
+          <div class="current-pos" id="currentPos" style="--pos:0;">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 5c3 0 5 1 8 3 3-2 5-3 8-3v13c-3 0-5 1-8 3-3-2-5-3-8-3V5z" fill="var(--gold-bright)" stroke="var(--gold)" stroke-width="0.6"/><path d="M12 8v13" stroke="var(--purple-deep)" stroke-width="0.6"/></svg>
+          </div>
+          <div class="book-track-fill" id="trackFill" style="--pos:0;"></div>
+          <div class="book-track-buffer"></div>
+          <div class="book-marker" id="marker0" style="--pos:0;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.3"><circle cx="12" cy="12" r="4"/></svg></div>
+          <div class="book-marker" id="marker1" style="--pos:23.08;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.3"><path d="M12 3l2 6 6 .5-4.7 4 1.4 6-4.7-3.6-4.7 3.6 1.4-6L3 9.5 9 9z"/></svg></div>
+          <div class="book-marker" id="marker2" style="--pos:84.6;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.3"><path d="M4 4h13l3 4-3 4H4z"/></svg></div>
+          <div class="book-marker" id="marker3" style="--pos:92.3;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.3"><path d="M12 4v16M6 8l6-4 6 4"/></svg></div>
+        </div>
+
+        <div class="track-side track-side-b">
+          <div class="track-label" style="--pos:0;">
+            <span class="tag">Bắt đầu</span>
+            <span class="amt">0₫</span>
+          </div>
+          <div class="track-label" style="--pos:84.6;">
+            <span class="tag">Stage Records</span>
+            <span class="amt">110.000.000₫</span>
+            <span class="desc">Concert booth &amp; freebies</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUND ALLOCATION ============ -->
+<section id="allocation" class="tab-panel">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title">Quỹ được sử dụng như thế nào</h2>
+  <p class="section-sub">Phân bổ theo thứ tự ưu tiên: Birthday → Concert → Fan Cafe. Nếu có điều chỉnh về quy mô hoặc chi phí thực tế, Tròn sẽ chủ động cập nhật tới mọi người.</p>
+  <div class="fund-grid">
+    <div class="fund-card">
+      <span class="num">01</span>
+      <h3>Vol. ∞ — Birthday</h3>
+      <span class="date">11.10.2026</span>
+      <div class="amt">30.000.000đ</div>
+      <ul>
+        <li>Birthday LED tại Hà Nội &amp; TP.HCM</li>
+        <li>Quà sinh nhật dành tặng chú Thỏ</li>
+      </ul>
+    </div>
+    <div class="fund-card">
+      <span class="num">02</span>
+      <h3>Stage Records — Concert</h3>
+      <span class="date">17–18.10.2026</span>
+      <div class="amt">80.000.000đ</div>
+      <ul>
+        <li>Endless LIBRAry Booth Concert</li>
+        <li>Freebies / Fan support</li>
+      </ul>
+    </div>
+    <div class="fund-card">
+      <span class="num">03</span>
+      <h3>Beyond — Fan Cafe</h3>
+      <span class="date">11.10.2026</span>
+      <div class="amt">10.000.000đ</div>
+      <ul>
+        <li>Birthday Fan Cafe freebies / custom cup</li>
+        <li>Birthday decoration &amp; activities</li>
+      </ul>
+    </div>
+  </div>
+  <p class="fund-note">+ Dự trù phát sinh: 10%. Tối đa donate 200.000 VNĐ / người.</p>
+</section>
+
+<!-- ============ DONATE ============ -->
+<section id="donate" class="tab-panel">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title">Góp một trang sách</h2>
+  <p class="section-sub">Điền thông tin vào Google Form — thông tin chuyển khoản (QR + số tài khoản) đã có sẵn ngay trong form.</p>
+
+  <div class="donate-simple">
+    <ol class="donate-steps-short">
+      <li><span class="step-num">1</span>Bấm nút bên dưới để mở Google Form.</li>
+      <li><span class="step-num">2</span>Trong form sẽ có mã QR và số tài khoản để chuyển khoản. Nội dung chuyển khoản: <b>Tên hiển thị + 4 số đuôi điện thoại</b>. Tối đa <b>200.000 VNĐ</b> / người (cộng dồn tất cả các lần).</li>
+      <li><span class="step-num">3</span>Chuyển khoản xong, đính kèm luôn ảnh xác nhận giao dịch và gửi form — tránh trường hợp quên điền form sau khi đã chuyển tiền.</li>
+      <li><span class="step-num">4</span>Tên bạn (nếu đồng ý) sẽ xuất hiện trong tab <b>"Danh sách Donors"</b>. Bạn có thể tự kiểm tra lại chi tiết đóng góp tại tab <b>"Tra cứu"</b> bằng số điện thoại (hoặc email nếu không điền SĐT).</li>
+    </ol>
+
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSd8CkSvmhzch373G7zDl1AP8diZes_aGNJSj8_h4xxmYzk6vg/viewform" target="_blank" rel="noopener" class="btn btn-primary donate-form-link">Điền Google Form →</a>
+  </div>
+</section>
+
+<!-- ============ THANK YOU WALL ============ -->
+<section id="thankyou" class="tab-panel">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title" style="margin-bottom:8px;">Danh sách Donors</h2>
+  <p class="section-sub" style="margin-bottom:28px;">Cảm ơn bạn đã cùng Vòng Tròn Nhỏ lật mở từng trang sách trong thư viện này.</p>
+  <div class="wall-stats" style="margin-bottom:28px;">
+    <div><span id="statCount">—</span><small>Trang sách đã mở</small></div>
+    <div><span id="statMsgs">—</span><small>Lời nhắn gửi chú Thỏ</small></div>
+  </div>
+  <div class="wall-grid" id="wallGrid">
+    <div class="wall-loading">Đang lật từng trang cảm ơn…</div>
+  </div>
+</section>
+
+<!-- ============ LOOKUP ============ -->
+<section id="lookup" class="tab-panel">
+  <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
+  <h2 class="section-title">Tra cứu donation của bạn</h2>
+  <p class="section-sub">Nhập số điện thoại bạn đã dùng khi điền form để xem lại chi tiết đóng góp của mình (email, ảnh xác nhận giao dịch, số tiền…). Nếu bạn không điền số điện thoại, hãy nhập email (phần trước dấu @) mà bạn đã dùng.</p>
+  <div class="lookup-card">
+    <div class="lookup-form">
+      <input type="text" id="lookupPhone" placeholder="Số điện thoại, hoặc email đã đăng ký…" inputmode="text" autocomplete="off">
+      <button class="btn btn-primary" onclick="doLookup()">Mở khóa thông tin</button>
+    </div>
+    <p class="lookup-note">Số điện thoại (hoặc email) đóng vai trò như mật khẩu để bạn tự kiểm tra sao kê. Thông tin chi tiết chỉ hiển thị khi trùng khớp với dữ liệu bạn đã điền — trang không hiển thị email/SĐT/ảnh của người khác công khai.</p>
+    <div class="lookup-status" id="lookupStatus"></div>
+    <div class="lookup-results" id="lookupResults"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="quote">"Every story begins with someone turning the first page."</div>
+  <div class="credit">
+    <div class="credit-line">⎡ Endless LIBRAry ⎦ — October Project for Thỏ (Da LAB)</div>
+    <div class="credit-line">Thực hiện bởi <b>Vòng Tròn Nhỏ</b> · Fantom, 10/2026</div>
+  </div>
+</footer>
+
+<script>
+/* ================= tab navigation ================= */
+const TAB_IDS = ['story', 'progress', 'allocation', 'donate', 'thankyou', 'lookup'];
+const tabBar = document.getElementById('tabBar');
+const floatingLogo = document.querySelector('.site-logo');
+// Vị trí menu bar (khoảng cách từ đầu trang tới menu) — tính LẠI mỗi lần cần,
+// vì chiều cao hero thay đổi khi ảnh tải xong. Cache 1 lần sẽ sai -> menu rớt.
+function getTabBarAnchorY(){
+  return tabBar.offsetTop;
+}
+const tabScrollOffsets = {};
+let currentActiveTab = 'story';
+
+let logoDockFrame = null;
+function syncLogoDock(){
+  logoDockFrame = null;
+  const barTop = tabBar.getBoundingClientRect().top;
+  const logoBottom = floatingLogo.getBoundingClientRect().bottom;
+  document.body.classList.toggle('logo-docked', barTop <= logoBottom);
+}
+function requestLogoDockSync(){
+  if(logoDockFrame === null) logoDockFrame = requestAnimationFrame(syncLogoDock);
+}
+window.addEventListener('scroll', requestLogoDockSync, {passive:true});
+window.addEventListener('resize', requestLogoDockSync);
+syncLogoDock();
+
+// Đảm bảo panel active đủ cao để trang cuộn tới mức menu dính đỉnh.
+// Cần: chiều cao dưới menu (viewport - chiều cao menu) tối thiểu bằng panel,
+// để scrollY có thể đạt tabBarAnchorY. Đặt min-height động, không thừa.
+function ensureStickyRoom(tabId){
+  const panel = document.getElementById(tabId);
+  if(!panel) return;
+  panel.style.minHeight = '';           // reset trước khi đo nội dung thật
+  const barH = tabBar.getBoundingClientRect().height;
+  const needed = Math.ceil(window.innerHeight - barH);
+  if(panel.getBoundingClientRect().height < needed){
+    panel.style.minHeight = needed + 'px';
+  }
+}
+
+function activateTab(tabId, updateHash = true){
+  if(!TAB_IDS.includes(tabId)) return;
+
+  // Vị trí menu TRƯỚC khi đổi panel (để biết menu có đang dính đỉnh không).
+  const anchorBefore = getTabBarAnchorY();
+  const tabBarWasSticky = window.scrollY >= anchorBefore;
+  if(currentActiveTab && currentActiveTab !== tabId){
+    // Lưu khoảng cách tương đối từ menu, không lưu tọa độ tuyệt đối của trang.
+    tabScrollOffsets[currentActiveTab] = tabBarWasSticky
+      ? Math.max(0, window.scrollY - anchorBefore)
+      : 0;
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === tabId);
+  });
+  if(updateHash){
+    history.replaceState(null, '', '#' + tabId);
+  }
+
+  // Đảm bảo panel active đủ cao để trang cuộn được tới mức menu dính đỉnh
+  // (làm TRƯỚC khi tính toạ độ cuộn, vì nó thay đổi chiều cao trang).
+  ensureStickyRoom(tabId);
+
+  // Tính lại vị trí menu SAU khi đổi panel (chiều cao trang có thể đã đổi).
+  const anchorAfter = getTabBarAnchorY();
+  const hasSavedPosition = Object.prototype.hasOwnProperty.call(tabScrollOffsets, tabId);
+  let targetY = hasSavedPosition
+    ? anchorAfter + tabScrollOffsets[tabId]
+    : (tabBarWasSticky ? anchorAfter : 0);
+  // Nếu menu đang dính đỉnh lúc chuyển tab -> KHÔNG để tab mới rơi lên cao hơn mức
+  // menu-dính-đỉnh. Menu chỉ rời đỉnh khi người dùng tự vuốt lên đầu trang.
+  if(tabBarWasSticky){
+    targetY = Math.max(targetY, anchorAfter);
+  }
+
+  requestAnimationFrame(() => {
+    const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo({ top: Math.min(targetY, maxY), behavior: 'auto' });
+  });
+
+  currentActiveTab = tabId;
+
+  // Cuộn thanh menu ngang để nút tab đang chọn về giữa nhất có thể.
+  centerActiveTab(tabId);
+
+  if(tabId === 'thankyou' && typeof checkMessageOverflows === 'function'){
+    requestAnimationFrame(checkMessageOverflows);
+  }
+  if(tabId === 'thankyou' && typeof ensureWallLoaded === 'function'){
+    setTimeout(ensureWallLoaded, 0);
+  }
+}
+
+// Đưa nút tab đang active về giữa dải menu (nếu dải bị tràn và cuộn ngang được).
+function centerActiveTab(tabId){
+  const strip = document.querySelector('.tab-scroll');
+  if(!strip) return;
+  const btn = strip.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if(!btn) return;
+  requestAnimationFrame(() => {
+    const stripRect = strip.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    // Độ lệch giữa tâm nút và tâm khung nhìn của dải -> cộng vào scrollLeft hiện tại
+    // để đưa nút về chính giữa. clamp trong khoảng cuộn hợp lệ.
+    const delta = (btnRect.left + btnRect.width / 2) - (stripRect.left + stripRect.width / 2);
+    const maxScroll = strip.scrollWidth - strip.clientWidth;
+    const left = Math.max(0, Math.min(strip.scrollLeft + delta, maxScroll));
+    strip.scrollTo({ left, behavior: 'smooth' });
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+});
+document.querySelectorAll('[data-goto-tab]').forEach(btn => {
+  btn.addEventListener('click', () => activateTab(btn.dataset.gotoTab));
+});
+
+// mở đúng tab theo #hash khi tải trang (vd chia sẻ link .../#donate)
+(function(){
+  const initial = location.hash.replace('#', '');
+  if(TAB_IDS.includes(initial)) activateTab(initial, false);
+})();
+
+/* ================= ambient sparkles ================= */
+(function(){
+  const field = document.getElementById('sparkleField');
+  const n = window.innerWidth < 700 ? 16 : 28;
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    const size = 2 + Math.random()*4;
+    s.className='spark';
+    s.style.width=size+'px';
+    s.style.height=size+'px';
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*6)+'s';
+    s.style.animationDuration=(4+Math.random()*5)+'s';
+    field.appendChild(s);
+  }
+})();
+
+/* ================= data pipeline (secure — via Apps Script API) ================= */
+// 👉 Dán "Web app URL" từ Apps Script của bạn vào đây (xem hướng dẫn trong AppsScript_Code.gs)
+const API_URL = 'https://script.google.com/macros/s/AKfycbw3ms67MjRtUa3Ykwnv3BpD1L3pnbPhAqA1o8imvySTjxAci5GNNkJIk_C_ksFCD1efMA/exec';
+
+const TARGET_TOTAL = 130000000;
+const MILESTONES = [30000000, 110000000, 120000000];
+
+function fmtVND(n){ return n.toLocaleString('vi-VN') + '₫'; }
+
+function driveIdFromLink(link){
+  const m = link.match(/[-\w]{20,}/);
+  return m ? m[0] : null;
+}
+
+function apiConfigured(){
+  return API_URL && !API_URL.includes('PASTE_YOUR');
+}
+
+// Gọi API bằng JSONP (tải qua thẻ <script>) thay vì fetch().
+// Lý do: Apps Script trả 302 chuyển hướng sang script.googleusercontent.com.
+// Khi host trên GitHub Pages (domain khác), fetch() đi qua redirect này bị mất
+// Origin (thành null) và bị trình duyệt chặn đọc response — đặc biệt với payload
+// lớn như "wall". Thẻ <script> KHÔNG bị ràng buộc CORS và đi theo 302 tự nhiên,
+// nên tải được dữ liệu ổn định. Đây là cách chuẩn cho Apps Script + trang tĩnh.
+let jsonpCounter = 0;
+function fetchApiJson(action, params = {}, options = {}){
+  const attemptTimeouts = options.attemptTimeouts || [6000, 12000];
+  const onRetry = options.onRetry;
+
+  function singleAttempt(timeoutMs){
+    return new Promise((resolve, reject) => {
+      const callbackName = '__elJsonp_' + (++jsonpCounter) + '_' + Date.now();
+      const url = new URL(API_URL);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      url.searchParams.set('callback', callbackName);
+      // Cache-busting mềm 30s (trừ lookup) để trùng cache backend mà vẫn tươi.
+      if(action !== 'lookup'){
+        url.searchParams.set('_w', Math.floor(Date.now() / 30000));
+      }
+
+      const script = document.createElement('script');
+      let done = false;
+
+      const cleanup = () => {
+        if(timer) clearTimeout(timer);
+        delete window[callbackName];
+        if(script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      const timer = setTimeout(() => {
+        if(done) return;
+        done = true;
+        cleanup();
+        const err = new Error('timeout');
+        err.name = 'TimeoutError';
+        reject(err);
+      }, timeoutMs);
+
+      window[callbackName] = (data) => {
+        if(done) return;
+        done = true;
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        if(done) return;
+        done = true;
+        cleanup();
+        reject(new Error('script_load_failed'));
+      };
+
+      script.src = url.toString();
+      document.head.appendChild(script);
+    });
+  }
+
+  return (async () => {
+    let lastError;
+    for(let attempt = 0; attempt < attemptTimeouts.length; attempt++){
+      if(attempt > 0 && typeof onRetry === 'function') onRetry(attempt);
+      try{
+        return await singleAttempt(attemptTimeouts[attempt]);
+      } catch(err){
+        lastError = err;
+        // JSONP lỗi thường do mạng/timeout -> thử lại lượt kế tiếp.
+      }
+    }
+    throw lastError;
+  })();
+}
+
+function apiErrorMessage(err){
+  if(err && err.name === 'TimeoutError'){
+    return 'Kết nối tới Google Sheet quá thời gian. Vui lòng kiểm tra mạng và thử tải lại trang.';
+  }
+  if(err && err.message === 'script_load_failed'){
+    return 'Không tải được dữ liệu từ Google Sheet. Hãy kiểm tra Apps Script Web App: Execute as “Me” và Who has access là “Anyone”, rồi thử lại.';
+  }
+  return 'Không thể kết nối Google Sheet lúc này. Vui lòng kiểm tra mạng hoặc tải lại trang.';
+}
+
+const PUBLIC_DATA_CACHE_KEY = 'endlessLibraryPublicDataV1';
+function readPublicDataCache(){
+  try{
+    const cached = JSON.parse(localStorage.getItem(PUBLIC_DATA_CACHE_KEY));
+    // Cache chỉ dùng để hiển thị tức thời trong tối đa 1 giờ; request mới vẫn
+    // luôn chạy ngay sau đó để cập nhật dữ liệu mới nhất.
+    if(cached && cached.data && Date.now() - cached.savedAt < 60 * 60 * 1000){
+      return cached.data;
+    }
+  } catch(err){ /* localStorage có thể bị chặn trong chế độ private */ }
+  return null;
+}
+
+function savePublicDataCache(data){
+  try{
+    const current = readPublicDataCache() || {};
+    const merged = Object.assign({}, current, data);
+    localStorage.setItem(PUBLIC_DATA_CACHE_KEY, JSON.stringify({savedAt:Date.now(), data:merged}));
+  } catch(err){ /* không ảnh hưởng việc render nếu storage đầy/bị chặn */ }
+}
+
+async function loadSheet(){
+  if(!apiConfigured()){
+    document.getElementById('progressLoading').textContent = 'Chưa cấu hình API_URL — xem hướng dẫn trong file AppsScript_Code.gs.';
+    document.getElementById('wallGrid').innerHTML = '<div class="wall-empty">Chưa cấu hình API_URL.</div>';
+    return;
+  }
+
+  const cached = readPublicDataCache();
+  if(cached && cached.progress){
+    renderProgress(cached.progress);
+  }
+
+  try{
+    const progress = await fetchApiJson('progress', {}, {
+      onRetry: () => {
+        if(!cached){
+          document.getElementById('progressLoading').textContent = 'Kết nối hơi chậm, đang thử lại…';
+        }
+      }
+    });
+    renderProgress(progress);
+    savePublicDataCache({progress:progress});
+  } catch(err){
+    // Nếu đã có cache thì giữ dữ liệu đang hiển thị, chỉ log lỗi refresh.
+    if(!cached){
+      const loadingEl = document.getElementById('progressLoading');
+      loadingEl.innerHTML = `${apiErrorMessage(err)} <button type="button" class="retry-btn" onclick="loadSheet()">Thử lại</button>`;
+    }
+    console.error('Progress API:', err);
+  }
+}
+
+let wallRequest = null;
+async function ensureWallLoaded(){
+  if(wallRequest) return wallRequest;
+  const cached = readPublicDataCache();
+  if(cached && cached.wall) renderWall(cached.wall);
+
+  wallRequest = fetchApiJson('wall', {}, {
+    attemptTimeouts: [8000, 15000],
+    onRetry: () => {
+      if(!(cached && cached.wall)){
+        document.getElementById('wallGrid').innerHTML = '<div class="wall-loading">Kết nối hơi chậm, đang thử lại…</div>';
+      }
+    }
+  })
+    .then(wall => {
+      renderWall(wall);
+      savePublicDataCache({wall:wall});
+      return wall;
+    })
+    .catch(err => {
+      if(!(cached && cached.wall)){
+        document.getElementById('wallGrid').innerHTML = `<div class="wall-empty">${apiErrorMessage(err)}</div>`;
+      }
+      console.error('Wall API:', err);
+      wallRequest = null;
+    });
+  return wallRequest;
+}
+
+function renderProgress(progress){
+  const total = progress.total || 0;
+  const pct = Math.min(100, (total / TARGET_TOTAL) * 100);
+
+  document.getElementById('progressLoading').style.display='none';
+  document.getElementById('progressContent').style.display='block';
+  document.getElementById('raisedAmount').textContent = total.toLocaleString('vi-VN') + '₫';
+  document.getElementById('progressPct').textContent = pct.toFixed(1) + '% mục tiêu';
+  document.getElementById('trackFill').style.setProperty('--pos', pct);
+  document.getElementById('currentPos').style.setProperty('--pos', pct);
+
+  const milestoneAbs = [0, ...MILESTONES];
+  ['marker0','marker1','marker2','marker3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if(total >= milestoneAbs[i]) el.classList.add('reached');
+  });
+}
+
+function renderWall(wall){
+  const items = wall.items || [];
+  document.getElementById('statCount').textContent = (wall.stats && wall.stats.count) || 0;
+  document.getElementById('statMsgs').textContent = (wall.stats && wall.stats.withMsg) || 0;
+
+  const grid = document.getElementById('wallGrid');
+  if(items.length === 0){
+    grid.innerHTML = '<div class="wall-empty">Chưa có donor nào. Hãy là người đầu tiên!</div>';
+    return;
+  }
+
+  // Giữ đúng thứ tự từ trên xuống dưới của Google Sheet (backend đã trả về theo thứ tự này)
+  grid.innerHTML = '';
+  items.forEach((d, idx) => {
+    const card = document.createElement('div');
+    card.className = 'thank-card';
+    const displayName = d.name && d.name.trim() ? d.name : 'Anonymous';
+    const timeStr = d.timestamp ? new Date(d.timestamp).toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+    const remainingHtml = (typeof d.runningTotal === 'number')
+      ? `<span class="fund-remaining">Số dư quỹ: ${d.runningTotal.toLocaleString('vi-VN')}₫</span>`
+      : '<span></span>';
+    const msgHtml = d.message
+      ? `<div class="msg" id="msg-${idx}">${escapeHtml(d.message)}</div><button class="more-toggle" id="toggle-${idx}" style="display:none;" onclick="toggleMsg(${idx})">Xem thêm</button>`
+      : '';
+    card.innerHTML = `
+      <div class="row1">
+        <span class="name">${escapeHtml(displayName)}</span>
+        <span class="amount">${(d.amount||0).toLocaleString('vi-VN')}₫</span>
+      </div>
+      ${msgHtml}
+      <div class="row-foot">
+        <span class="time">${timeStr}</span>
+        ${remainingHtml}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  requestAnimationFrame(checkMessageOverflows);
+}
+
+// Chỉ hiện nút "Xem thêm" nếu nội dung thực sự bị cắt bớt (tránh hiện nút thừa)
+function checkMessageOverflows(){
+  document.querySelectorAll('#wallGrid .msg').forEach(msgEl => {
+    const idx = msgEl.id.replace('msg-', '');
+    const toggle = document.getElementById('toggle-' + idx);
+    if(!toggle) return;
+    msgEl.classList.remove('expanded');
+    toggle.textContent = 'Xem thêm';
+    toggle.style.display = (msgEl.scrollHeight > msgEl.clientHeight + 2) ? 'inline-block' : 'none';
+  });
+}
+
+function toggleMsg(idx){
+  const el = document.getElementById('msg-'+idx);
+  const btn = document.getElementById('toggle-'+idx);
+  if(!el) return;
+  el.classList.toggle('expanded');
+  if(btn) btn.textContent = el.classList.contains('expanded') ? 'Thu gọn' : 'Xem thêm';
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function doLookup(){
+  const input = document.getElementById('lookupPhone').value.trim();
+  const statusEl = document.getElementById('lookupStatus');
+  const resultsEl = document.getElementById('lookupResults');
+  resultsEl.innerHTML = '';
+  statusEl.className = 'lookup-status';
+
+  if(!apiConfigured()){
+    statusEl.textContent = 'Chưa cấu hình API_URL — xem hướng dẫn trong file AppsScript_Code.gs.';
+    statusEl.classList.add('not-found');
+    return;
+  }
+  if(!input){
+    statusEl.textContent = 'Vui lòng nhập số điện thoại hoặc email.';
+    statusEl.classList.add('not-found');
+    return;
+  }
+
+  statusEl.textContent = 'Đang tra cứu…';
+
+  let data;
+  try{
+    data = await fetchApiJson('lookup', {phone:input}, {
+      onRetry: () => { statusEl.textContent = 'Kết nối hơi chậm, đang thử lại…'; }
+    });
+  } catch(err){
+    statusEl.textContent = apiErrorMessage(err);
+    statusEl.classList.add('not-found');
+    console.error(err);
+    return;
+  }
+
+  if(data.error === 'invalid_phone'){
+    statusEl.textContent = 'Thông tin tra cứu chưa hợp lệ. Hãy nhập số điện thoại, hoặc email (phần trước dấu @) bạn đã dùng.';
+    statusEl.classList.add('not-found');
+    return;
+  }
+
+  const matches = data.matches || [];
+  if(matches.length === 0){
+    statusEl.textContent = 'Không tìm thấy donation nào khớp. Nếu bạn dùng số điện thoại, thử bỏ đầu số quốc gia (+84); nếu bạn không điền SĐT, hãy nhập email (phần trước dấu @) bạn đã dùng.';
+    statusEl.classList.add('not-found');
+    return;
+  }
+
+  statusEl.textContent = `Tìm thấy ${matches.length} lượt donation.`;
+  statusEl.classList.add('found');
+
+  matches.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'lookup-result-card';
+    const imagesHtml = d.images.map(link => {
+      const id = driveIdFromLink(link);
+      if(!id) return `<a class="fallback" href="${link}" target="_blank" rel="noopener">Xem ảnh</a>`;
+      const thumb = `https://drive.google.com/thumbnail?id=${id}&sz=w300`;
+      return `<a href="${link}" target="_blank" rel="noopener"><img src="${thumb}" loading="lazy" onerror="this.parentElement.outerHTML='<a class=\\'fallback\\' href=\\'${link}\\' target=\\'_blank\\' rel=\\'noopener\\'>Xem ảnh</a>'"></a>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="grid">
+        <div class="field"><small>Thời gian</small><span>${escapeHtml(d.timestamp)}</span></div>
+        <div class="field"><small>Số tiền</small><span>${d.amountValid ? fmtVND(d.amount) : escapeHtml(String(d.amount))}</span></div>
+        <div class="field"><small>Tên hiển thị</small><span>${escapeHtml(d.name)}</span></div>
+        <div class="field"><small>Hiển thị công khai</small><span>${d.consent ? 'Có' : 'Không'}</span></div>
+        <div class="field"><small>Email</small><span>${d.email ? escapeHtml(d.email) : '—'}</span></div>
+        <div class="field"><small>Số điện thoại</small><span>${d.phone ? escapeHtml(d.phone) : '—'}</span></div>
+      </div>
+      ${d.message ? `<div class="msg-box">"${escapeHtml(d.message)}"</div>` : ''}
+      ${d.images.length ? `<div class="imgs">${imagesHtml}</div>` : ''}
+    `;
+    resultsEl.appendChild(card);
+  });
+}
+
+document.getElementById('lookupPhone').addEventListener('keydown', e => {
+  if(e.key === 'Enter') doLookup();
+});
+
+
+loadSheet();
+if(document.getElementById('thankyou').classList.contains('active')) ensureWallLoaded();
+
+/* ================= NHẠC NỀN (YouTube IFrame API) ================= */
+(function(){
+  const VIDEO_ID = '6Kuc3aDN1H8';
+  const START_SEC = 14;           // bắt đầu từ giây 14 theo link
+  const END_SEC = 155;            // dừng tại 2'35 (2*60+35) rồi loop về START_SEC
+  const toggleBtn = document.getElementById('musicToggle');
+  let player = null;
+  let ready = false;
+  let userWantsMusic = true;      // mặc định muốn phát (theo yêu cầu tự phát)
+  let startedOnce = false;
+  let loopTimer = null;           // theo dõi để loop tại END_SEC
+  let pendingPlay = false;        // có cử chỉ trước khi player sẵn sàng -> phát ngay khi ready
+
+  // Nạp YouTube IFrame API 1 lần
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+
+  window.onYouTubeIframeAPIReady = function(){
+    player = new YT.Player('ytMusicHost', {
+      videoId: VIDEO_ID,
+      playerVars: {
+        autoplay: 1, controls: 0, disablekb: 1, fs: 0,
+        modestbranding: 1, playsinline: 1, rel: 0,
+        start: START_SEC
+      },
+      events: {
+        onReady: onPlayerReady,
+        onStateChange: onPlayerState
+      }
+    });
+  };
+
+  function onPlayerReady(){
+    ready = true;
+    // Nếu người dùng đã tương tác TRƯỚC khi player sẵn sàng -> phát ngay.
+    if(pendingPlay && userWantsMusic){
+      tryPlay();
+      return;
+    }
+    // Thử tự phát ngay. Trình duyệt thường chặn autoplay CÓ TIẾNG -> có thể thất bại.
+    tryPlay();
+    // Nếu chưa phát được -> hiện gợi ý chạm (listener cử chỉ đã gắn sẵn từ đầu).
+    setTimeout(() => {
+      if(userWantsMusic && !isPlaying()){
+        toggleBtn.classList.add('needs-tap');
+      }
+    }, 800);
+  }
+
+  function onPlayerState(e){
+    if(e.data === YT.PlayerState.PLAYING){
+      startedOnce = true;
+      pendingPlay = false;
+      document.body.classList.add('music-playing');
+      toggleBtn.classList.remove('needs-tap');
+      removeGestureListeners();
+      startLoopWatch();
+    } else if(e.data === YT.PlayerState.PAUSED){
+      document.body.classList.remove('music-playing');
+      stopLoopWatch();
+    } else if(e.data === YT.PlayerState.ENDED){
+      // Dự phòng: nếu bài ngắn hơn END_SEC và tự kết thúc -> vẫn loop về đầu.
+      player.seekTo(START_SEC, true);
+      player.playVideo();
+    }
+  }
+
+  // Theo dõi thời gian phát: khi chạm mốc END_SEC (2'35) -> tua về START_SEC và phát tiếp.
+  function startLoopWatch(){
+    stopLoopWatch();
+    loopTimer = setInterval(() => {
+      if(!ready || !player || !player.getCurrentTime) return;
+      const t = player.getCurrentTime();
+      if(t >= END_SEC){
+        player.seekTo(START_SEC, true);
+        player.playVideo();
+      }
+    }, 250);
+  }
+  function stopLoopWatch(){
+    if(loopTimer){ clearInterval(loopTimer); loopTimer = null; }
+  }
+
+  function isPlaying(){
+    return ready && player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING;
+  }
+  function tryPlay(){
+    if(!ready || !player) return;
+    if(!startedOnce){ try{ player.seekTo(START_SEC, true); }catch(e){} }
+    player.playVideo();
+  }
+
+  // Bắt cử chỉ đầu tiên (chạm/click/cuộn/phím/di chuột) để phát nhạc khi autoplay bị chặn.
+  // Gắn NGAY khi trang load (không đợi player ready, không đợi timeout) để không bỏ lỡ
+  // tương tác sớm của người dùng.
+  function onFirstGesture(){
+    if(!userWantsMusic) return;
+    toggleBtn.classList.remove('needs-tap');
+    if(ready){
+      tryPlay();
+    } else {
+      // Player chưa sẵn sàng -> đánh dấu để phát ngay khi ready.
+      pendingPlay = true;
+    }
+    // Nếu đã thật sự phát -> gỡ listener. Nếu chưa (vd player chưa ready), giữ lại
+    // để lần tương tác sau vẫn thử. onPlayerState sẽ tự dọn khi PLAYING.
+    if(isPlaying()) removeGestureListeners();
+  }
+  const GESTURE_EVENTS = ['pointerdown','click','keydown','touchstart'];
+  function armFirstGesture(){
+    GESTURE_EVENTS.forEach(ev =>
+      window.addEventListener(ev, onFirstGesture, {capture:true, passive:true})
+    );
+  }
+  function removeGestureListeners(){
+    GESTURE_EVENTS.forEach(ev =>
+      window.removeEventListener(ev, onFirstGesture, {capture:true})
+    );
+  }
+  // Gắn listener ngay lập tức.
+  armFirstGesture();
+
+  // Nút bật/tắt
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if(!ready){ userWantsMusic = true; return; }
+    if(isPlaying()){
+      userWantsMusic = false;
+      player.pauseVideo();
+    } else {
+      userWantsMusic = true;
+      toggleBtn.classList.remove('needs-tap');
+      tryPlay();
+    }
+  });
+})();
+</script>
+</body>
+</html>
