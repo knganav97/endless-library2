@@ -221,7 +221,7 @@
   }
 
   /* ===== TAB PANELS ===== */
-  .tab-panel{display:none;animation:fadeInPanel .35s ease;}
+  .tab-panel{display:none;animation:fadeInPanel .35s ease;scroll-margin-top:64px;}
   .tab-panel.active{display:block;}
   @keyframes fadeInPanel{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
@@ -758,20 +758,22 @@ function activateTab(tabId, updateHash = true){
 
   // Tính lại vị trí menu SAU khi đổi panel (chiều cao trang có thể đã đổi).
   const anchorAfter = getTabBarAnchorY();
+  const barH = tabBar.getBoundingClientRect().height;
   const hasSavedPosition = Object.prototype.hasOwnProperty.call(tabScrollOffsets, tabId);
-  let targetY = hasSavedPosition
-    ? anchorAfter + tabScrollOffsets[tabId]
-    : (tabBarWasSticky ? anchorAfter : 0);
-  // Nếu menu đang dính đỉnh lúc chuyển tab -> KHÔNG để tab mới rơi lên cao hơn mức
-  // menu-dính-đỉnh. Menu chỉ rời đỉnh khi người dùng tự vuốt lên đầu trang.
-  if(tabBarWasSticky){
-    targetY = Math.max(targetY, anchorAfter);
+  let targetY;
+  if(hasSavedPosition){
+    // Tab đã mở -> về đúng vị trí đã lưu.
+    targetY = anchorAfter + tabScrollOffsets[tabId];
+  } else if(tabBarWasSticky){
+    // Tab MỚI khi menu đang dính -> cuộn tới sát mức menu-dính nhưng lùi lại chiều cao
+    // menu, để tiêu đề tab luôn hiện đầy đủ (không bị menu che). Menu vẫn nằm sát đỉnh.
+    targetY = Math.max(0, anchorAfter - barH);
+  } else {
+    targetY = 0;
   }
 
   // Cuộn NGAY (đồng bộ). Việc gọi getTabBarAnchorY()/ensureStickyRoom() ở trên đã
   // buộc trình duyệt reflow, nên scrollHeight bên dưới là chính xác cho panel MỚI.
-  // (Trước đây cuộn trong requestAnimationFrame -> scrollHeight đôi khi còn là của
-  //  tab cũ -> tab mới bị kẹt ở vị trí của tab trước đó.)
   currentActiveTab = tabId;
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   window.scrollTo({ top: Math.min(targetY, maxY), behavior: 'auto' });
