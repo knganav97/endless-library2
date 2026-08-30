@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⎡ Endless LIBRAry ⎦ — October Project for Thỏ (Da LAB)</title>
+<meta name="description" content="Endless LIBRAry — dự án gây quỹ tháng 10 dành cho Thỏ (Da LAB), thực hiện bởi Vòng Tròn Nhỏ.">
+
+<!-- Ảnh preview khi chia sẻ link (Open Graph / Twitter). Dùng URL tuyệt đối. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://endlesslibrary.netlify.app/">
+<meta property="og:title" content="⎡ Endless LIBRAry ⎦ — October Project for Thỏ (Da LAB)">
+<meta property="og:description" content="Dự án gây quỹ tháng 10 dành cho Thỏ (Da LAB), thực hiện bởi Vòng Tròn Nhỏ.">
+<meta property="og:image" content="https://endlesslibrary.netlify.app/TYPO.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="⎡ Endless LIBRAry ⎦ — October Project for Thỏ (Da LAB)">
+<meta name="twitter:description" content="Dự án gây quỹ tháng 10 dành cho Thỏ (Da LAB), thực hiện bởi Vòng Tròn Nhỏ.">
+<meta name="twitter:image" content="https://endlesslibrary.netlify.app/TYPO.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,7 +41,7 @@
     --sans:'Be Vietnam Pro', sans-serif;
   }
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{overflow-anchor:none;}
   body{
     margin:0;
     background:var(--ink);
@@ -221,7 +235,7 @@
   }
 
   /* ===== TAB PANELS ===== */
-  .tab-panel{display:none;animation:fadeInPanel .35s ease;scroll-margin-top:64px;}
+  .tab-panel{display:none;animation:fadeInPanel .35s ease;}
   .tab-panel.active{display:block;}
   @keyframes fadeInPanel{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
@@ -397,6 +411,10 @@
 
   /* ===== THANK YOU WALL ===== */
   .wall-stats{display:flex;justify-content:center;gap:48px;margin-bottom:40px;flex-wrap:wrap;text-align:center;}
+  .wall-sort{display:flex;justify-content:center;gap:8px;margin-bottom:28px;}
+  .sort-btn{background:transparent;border:1px solid var(--card-border);color:var(--paper-dim);border-radius:999px;padding:7px 18px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:all .2s ease;}
+  .sort-btn:hover{color:var(--paper);border-color:var(--gold);}
+  .sort-btn.active{background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:#241407;font-weight:600;border-color:transparent;}
   .wall-stats div span{display:block;font-family:var(--serif);font-size:34px;color:var(--gold-bright);font-style:italic;}
   .wall-stats div small{font-size:11.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper-dim);}
   .wall-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
@@ -653,9 +671,13 @@
   <div class="divider"><span class="rule"></span><span class="glyph">✦</span><span class="rule"></span></div>
   <h2 class="section-title" style="margin-bottom:8px;">Danh sách Donors</h2>
   <p class="section-sub" style="margin-bottom:28px;">Cảm ơn bạn đã cùng Vòng Tròn Nhỏ lật mở từng trang sách trong thư viện này.</p>
-  <div class="wall-stats" style="margin-bottom:28px;">
+  <div class="wall-stats" style="margin-bottom:20px;">
     <div><span id="statCount">—</span><small>Trang sách đã mở</small></div>
     <div><span id="statMsgs">—</span><small>Lời nhắn gửi chú Thỏ</small></div>
+  </div>
+  <div class="wall-sort" id="wallSort">
+    <button type="button" class="sort-btn active" data-sort="newest" onclick="setWallSort('newest')">Mới nhất</button>
+    <button type="button" class="sort-btn" data-sort="oldest" onclick="setWallSort('oldest')">Sớm nhất</button>
   </div>
   <div class="wall-grid" id="wallGrid">
     <div class="wall-loading">Đang lật từng trang cảm ơn…</div>
@@ -690,13 +712,23 @@
 
 <script>
 /* ================= tab navigation ================= */
+// Tắt tự khôi phục vị trí cuộn của trình duyệt (nó có thể ghi đè cuộn thủ công của ta).
+if('scrollRestoration' in history){ history.scrollRestoration = 'manual'; }
+
 const TAB_IDS = ['story', 'progress', 'allocation', 'donate', 'thankyou', 'lookup'];
 const tabBar = document.getElementById('tabBar');
 const floatingLogo = document.querySelector('.site-logo');
-// Vị trí menu bar (khoảng cách từ đầu trang tới menu) — tính LẠI mỗi lần cần,
-// vì chiều cao hero thay đổi khi ảnh tải xong. Cache 1 lần sẽ sai -> menu rớt.
-function getTabBarAnchorY(){
-  return tabBar.offsetTop;
+// Vị trí menu bar (tuyệt đối từ đầu trang). PHẢI tính lúc load khi chưa cuộn —
+// nếu tính khi menu đang dính đỉnh (sticky, top=0) sẽ ra sai = scrollY hiện tại.
+let tabBarStaticTop = tabBar.getBoundingClientRect().top + window.scrollY;
+function recalcTabBarStaticTop(){
+  // Chỉ tính lại khi đang ở đầu trang (menu ở vị trí tự nhiên, chưa sticky).
+  if(window.scrollY < 2){
+    tabBarStaticTop = tabBar.getBoundingClientRect().top + window.scrollY;
+  }
+}
+function ensureTabBarStaticTop(){
+  return tabBarStaticTop;
 }
 const tabScrollOffsets = {};
 let currentActiveTab = 'story';
@@ -712,34 +744,16 @@ function requestLogoDockSync(){
   if(logoDockFrame === null) logoDockFrame = requestAnimationFrame(syncLogoDock);
 }
 window.addEventListener('scroll', requestLogoDockSync, {passive:true});
-window.addEventListener('resize', requestLogoDockSync);
+window.addEventListener('resize', () => { recalcTabBarStaticTop(); requestLogoDockSync(); });
+window.addEventListener('load', recalcTabBarStaticTop);
 syncLogoDock();
-
-// Đảm bảo panel active đủ cao để trang cuộn tới mức menu dính đỉnh.
-// Cần: chiều cao dưới menu (viewport - chiều cao menu) tối thiểu bằng panel,
-// để scrollY có thể đạt tabBarAnchorY. Đặt min-height động, không thừa.
-function ensureStickyRoom(tabId){
-  const panel = document.getElementById(tabId);
-  if(!panel) return;
-  panel.style.minHeight = '';           // reset trước khi đo nội dung thật
-  const barH = tabBar.getBoundingClientRect().height;
-  const needed = Math.ceil(window.innerHeight - barH);
-  if(panel.getBoundingClientRect().height < needed){
-    panel.style.minHeight = needed + 'px';
-  }
-}
 
 function activateTab(tabId, updateHash = true){
   if(!TAB_IDS.includes(tabId)) return;
 
-  // Vị trí menu TRƯỚC khi đổi panel (để biết menu có đang dính đỉnh không).
-  const anchorBefore = getTabBarAnchorY();
-  const tabBarWasSticky = window.scrollY >= anchorBefore;
+  // Lưu vị trí cuộn tuyệt đối của tab đang rời đi.
   if(currentActiveTab && currentActiveTab !== tabId){
-    // Lưu khoảng cách tương đối từ menu, không lưu tọa độ tuyệt đối của trang.
-    tabScrollOffsets[currentActiveTab] = tabBarWasSticky
-      ? Math.max(0, window.scrollY - anchorBefore)
-      : 0;
+    tabScrollOffsets[currentActiveTab] = window.scrollY;
   }
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -752,36 +766,16 @@ function activateTab(tabId, updateHash = true){
     history.replaceState(null, '', '#' + tabId);
   }
 
-  // Đảm bảo panel active đủ cao để trang cuộn được tới mức menu dính đỉnh
-  // (làm TRƯỚC khi tính toạ độ cuộn, vì nó thay đổi chiều cao trang).
-  ensureStickyRoom(tabId);
-
-  // Tính lại vị trí menu SAU khi đổi panel (chiều cao trang có thể đã đổi).
-  const anchorAfter = getTabBarAnchorY();
-  const barH = tabBar.getBoundingClientRect().height;
-  const hasSavedPosition = Object.prototype.hasOwnProperty.call(tabScrollOffsets, tabId);
-  let targetY;
-  if(hasSavedPosition){
-    // Tab đã mở -> về đúng vị trí đã lưu.
-    targetY = anchorAfter + tabScrollOffsets[tabId];
-  } else if(tabBarWasSticky){
-    // Tab MỚI khi menu đang dính -> cuộn tới sát mức menu-dính nhưng lùi lại chiều cao
-    // menu, để tiêu đề tab luôn hiện đầy đủ (không bị menu che). Menu vẫn nằm sát đỉnh.
-    targetY = Math.max(0, anchorAfter - barH);
-  } else {
-    targetY = 0;
-  }
-
-  // Cuộn NGAY (đồng bộ). Việc gọi getTabBarAnchorY()/ensureStickyRoom() ở trên đã
-  // buộc trình duyệt reflow, nên scrollHeight bên dưới là chính xác cho panel MỚI.
   currentActiveTab = tabId;
+
+  // Vị trí đích: tab đã mở -> vị trí đã lưu; lần đầu -> đúng mức menu dính đỉnh.
+  const anchor = ensureTabBarStaticTop();
+  const saved = Object.prototype.hasOwnProperty.call(tabScrollOffsets, tabId)
+    ? tabScrollOffsets[tabId] : null;
+  const target = (saved !== null) ? saved : anchor;
+
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  window.scrollTo({ top: Math.min(targetY, maxY), behavior: 'auto' });
-  // Lặp lại 1 lần ở frame kế để chống trường hợp ảnh/nội dung động làm đổi chiều cao.
-  requestAnimationFrame(() => {
-    const maxY2 = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    window.scrollTo({ top: Math.min(targetY, maxY2), behavior: 'auto' });
-  });
+  window.scrollTo({ top: Math.min(target, maxY), behavior: 'auto' });
 
   // Cuộn thanh menu ngang để nút tab đang chọn về giữa nhất có thể.
   centerActiveTab(tabId);
@@ -1046,18 +1040,38 @@ function renderProgress(progress){
   });
 }
 
+let wallItemsCache = [];
+let wallSortMode = 'newest';
+
+function setWallSort(mode){
+  if(mode !== 'newest' && mode !== 'oldest') return;
+  wallSortMode = mode;
+  document.querySelectorAll('#wallSort .sort-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === mode);
+  });
+  renderWallCards();
+}
+
 function renderWall(wall){
-  const items = wall.items || [];
+  wallItemsCache = wall.items || [];
   document.getElementById('statCount').textContent = (wall.stats && wall.stats.count) || 0;
   document.getElementById('statMsgs').textContent = (wall.stats && wall.stats.withMsg) || 0;
+  renderWallCards();
+}
 
+function renderWallCards(){
   const grid = document.getElementById('wallGrid');
-  if(items.length === 0){
+  if(wallItemsCache.length === 0){
     grid.innerHTML = '<div class="wall-empty">Chưa có donor nào. Hãy là người đầu tiên!</div>';
     return;
   }
 
-  // Giữ đúng thứ tự từ trên xuống dưới của Google Sheet (backend đã trả về theo thứ tự này)
+  // Backend trả items theo thứ tự thời gian tăng dần (cũ -> mới), runningTotal đã tính
+  // theo thứ tự đó. Chỉ đảo THỨ TỰ HIỂN THỊ, không đụng tới runningTotal của mỗi donation.
+  const items = (wallSortMode === 'newest')
+    ? wallItemsCache.slice().reverse()
+    : wallItemsCache.slice();
+
   grid.innerHTML = '';
   items.forEach((d, idx) => {
     const card = document.createElement('div');
